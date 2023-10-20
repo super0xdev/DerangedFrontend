@@ -10,7 +10,7 @@ import '@rainbow-me/rainbowkit/styles.css';
 
 import {
   getDefaultWallets,
-  RainbowKitProvider,
+  RainbowKitProvider
 } from '@rainbow-me/rainbowkit';
 import { configureChains, createConfig, WagmiConfig } from 'wagmi';
 import {
@@ -50,7 +50,7 @@ const wagmiConfig = createConfig({
   publicClient
 })
 
-function MyApp({ Component, pageProps }: AppProps) {
+const MyApp = ({ Component, pageProps }: AppProps) => {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
