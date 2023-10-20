@@ -13,7 +13,7 @@ function WalletStatus() {
   const [isWalletConnected, setIsWalletConnected] = useState(false);
 
   useEffect(() => {
-    if (address != undefined) setIsWalletConnected(true)
+    if (address !== undefined) setIsWalletConnected(true)
     else setIsWalletConnected(false)
   }, [address]);
 
