@@ -76,20 +76,19 @@ const Home: NextPage = () => {
         const gasPrice = ethers.utils.formatUnits(5, "gwei");
         const data = contract1.claimTokens().encodeABI();
         try {
-          const gasLimit = await provider.estimateGas({
-            to: contract1.options.address,
-            data: data,
-            from: userAddress
-          });
+          // const gasLimit = await provider.estimateGas({
+          //   to: contract1.options.address,
+          //   data: data,
+          //   from: userAddress
+          // });
 
-          const result = await provider.sendTransaction({
+          const result = await signer.sendTransaction({
             to: contract1.options.address,
             data: data,
             from: userAddress,
-            gas: gasLimit,
             gasPrice: gasPrice
           });
-          setClaimNotification("Transaction successful. Transaction hash: " + result.transactionHash);
+          setClaimNotification("Transaction successful. Transaction hash: " + result.hash);
 
           // Show the claim success popup
           showClaimSuccessPopup();
@@ -130,7 +129,7 @@ const Home: NextPage = () => {
 
         // // Convert gas price to Wei
         // const gasPrice = ethers.utils.formatUnits(5, "gwei"); // Replace '5' with your desired gas price
-        await contract.swapEthForTokens({ value: ethAmountWei })
+        const result = await contract.swapEthForTokens({ value: ethAmountWei })
         // const data = contract.methods[methodName]().encodeABI();
         // // Estimate gas limit for the transaction
         // const gasLimit = await provider.estimateGas({
@@ -148,7 +147,7 @@ const Home: NextPage = () => {
         //   value: ethAmountWei
         // });
         // Handle the result and show a success notification
-        setSwapNotification("Swap successful. Transaction hash: " + result.transactionHash);
+        setSwapNotification("Swap successful. Transaction hash: " + result.hash);
       } catch (error) {
         console.error("Error:", error);
         // Use type assertion (casting) to treat `error` as an `Error` object

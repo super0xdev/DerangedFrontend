@@ -2,12 +2,31 @@ import { useState, ComponentProps } from "react"
 import ReactTooltip from "react-tooltip"
 import { PieChart } from "react-minimal-pie-chart"
 
+// type CustomPieChartData = ComponentProps<typeof PieChart>["data"] & {
+//   tooltip: string;
+//   title: string;
+//   hovered: number;
+//   value: string
+// };
+
+// type Props = {
+//   data: ComponentProps<typeof PieChart>["data"];
+// };
+
+// function makeTooltipContent(entry: CustomPieChartData) {
+//   return `${entry.tooltip} - ${entry.value}%`;
+// }
 type Props = {
   data: ComponentProps<typeof PieChart>["data"];
 }
 
-function makeTooltipContent (entry: Props["data"][0]) {
-  return `${entry.tooltip} - ${entry.value}%`
+const makeTooltipContent = (index: number) => {
+  // return `${entry.tooltip} - ${entry.value}%`
+  if (index === 4) return "Liquidity Pool - 52%"
+  if (index === 3) return "Marketing and Collaboration - 4%"
+  if (index === 2) return "Central Exchange(CEX) - 4%"
+  if (index === 1) return "Premium Claim - 25%"
+  if (index === 0) return "Free Claim - 15%"
 }
 
 export const ToolTipPieChart = (props: Props) => {
@@ -37,7 +56,7 @@ export const ToolTipPieChart = (props: Props) => {
         id="chart"
         type="light"
         getContent={() =>
-          typeof hovered === "number" ? makeTooltipContent(data[hovered]) : null
+          typeof hovered === "number" ? makeTooltipContent(hovered) : null
         }
       />
     </div>
