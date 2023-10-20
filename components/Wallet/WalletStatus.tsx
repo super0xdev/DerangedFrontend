@@ -8,7 +8,7 @@ declare global {
   }
 }
 
-function WalletStatus() {
+const WalletStatus = () => {
   const { address } = useAccount()
   const [isWalletConnected, setIsWalletConnected] = useState(false);
 
