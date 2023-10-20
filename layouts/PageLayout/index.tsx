@@ -30,28 +30,100 @@ export const PageLayout: FC<PageLayoutProps> = ({ children }) => {
           <div className="flex divide-x divide-gray-500">
             <Logo />
           </div>
-          <div className="flex items-center gap-4 xs:hidden">
-            {/* {address != undefined ? <div className="text-white">{address}</div> :
-              <button className="flex items-center gap-2 p-4 px-8 transition-all max-w-max hover:scale-105 bg-gradient-to-t from-yellow-700 via-yellow-400 to-yellow-300 rounded-md"
-                onClick={openConnectModal}>ddddd</button>} */}
-            <ConnectButton />
+          <div className="flex items-center gap-4">
+            <ConnectButton.Custom>
+              {({
+                account,
+                chain,
+                openAccountModal,
+                openChainModal,
+                openConnectModal,
+                authenticationStatus,
+                mounted,
+              }) => {
+                // Note: If your app doesn't use authentication, you
+                // can remove all 'authenticationStatus' checks
+                const ready = mounted && authenticationStatus !== 'loading';
+                const connected =
+                  ready &&
+                  account &&
+                  chain &&
+                  (!authenticationStatus ||
+                    authenticationStatus === 'authenticated');
+
+                return (
+                  <div
+                    {...(!ready && {
+                      'aria-hidden': true,
+                      'style': {
+                        opacity: 0,
+                        pointerEvents: 'none',
+                        userSelect: 'none',
+                      },
+                    })}
+                  >
+                    {(() => {
+                      if (!connected) {
+                        return (
+                          <button onClick={openConnectModal} type="button" className="bg-blue-500 px-4 py-2 rounded-xl text-white">
+                            Connect Wallet
+                          </button>
+                        );
+                      }
+
+                      if (chain.unsupported) {
+                        return (
+                          <button onClick={openChainModal} type="button" className="bg-red-500 text-white px-4 py-2 rounded-xl">
+                            Wrong network
+                          </button>
+                        );
+                      }
+
+                      return (
+                        <div style={{ display: 'flex', gap: 12 }}>
+                          <button
+                            onClick={openChainModal}
+                            style={{ display: 'flex', alignItems: 'center' }}
+                            type="button"
+                            className="bg-blue-500 px-2 y-2 text-white rounded-md"
+                          >
+                            {chain.hasIcon && (
+                              <div
+                                style={{
+                                  background: chain.iconBackground,
+                                  width: 18,
+                                  height: 18,
+                                  borderRadius: 999,
+                                  overflow: 'hidden',
+                                  marginRight: 4,
+                                }}
+                              >
+                                {chain.iconUrl && (
+                                  <img
+                                    alt={chain.name ?? 'Chain icon'}
+                                    src={chain.iconUrl}
+                                    style={{ width: 18, height: 18 }}
+                                  />
+                                )}
+                              </div>
+                            )}
+                            <div className="hidden sm:flex">{chain.name}</div>
+                          </button>
+
+                          <button onClick={openAccountModal} type="button" className="bg-blue-500 px-4 py-2 rounded-md text-white">
+                            <div className="hidden sm:flex">{account.displayName}</div> (
+                            {account.displayBalance
+                              ? `${account.displayBalance}`
+                              : ''})
+                          </button>
+                        </div>
+                      );
+                    })()}
+                  </div>
+                );
+              }}
+            </ConnectButton.Custom>
           </div>
-          <Popup
-            open={isOpen}
-            onClose={closeModal}
-            trigger={
-              <button className="hidden xs:flex">
-                <HiMenu color="gray" size={24} />
-              </button>
-            }
-            modal
-            overlayStyle={{ marginTop: "60px", backgroundColor: "rgba(23,23,23,0.95)" }} >
-            <div className="flex flex-col w-screen h-screen gap-8 place-content-center">
-              <div className="flex justify-center gap-8">
-                <ConnectWalletButton />
-              </div>
-            </div>
-          </Popup>
         </header>
         <main className="flex flex-col grow">
           {children}

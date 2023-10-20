@@ -61,7 +61,7 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
     <>
       {ready ? (
         <WagmiConfig config={wagmiConfig}>
-          <RainbowKitProvider chains={chains}>
+          <RainbowKitProvider coolMode chains={chains}>
             <PageLayout>
               <Component {...pageProps} />
             </PageLayout >
