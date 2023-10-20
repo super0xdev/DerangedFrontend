@@ -85,7 +85,7 @@ export const PageLayout: FC<PageLayoutProps> = ({ children }) => {
                             onClick={openChainModal}
                             style={{ display: 'flex', alignItems: 'center' }}
                             type="button"
-                            className="bg-blue-500 px-2 y-2 text-white rounded-md"
+                            className="bg-blue-500 px-2 py-2 text-white rounded-md"
                           >
                             {chain.hasIcon && (
                               <div
@@ -107,11 +107,11 @@ export const PageLayout: FC<PageLayoutProps> = ({ children }) => {
                                 )}
                               </div>
                             )}
-                            <div className="hidden sm:flex">{chain.name}</div>
+                            <div className="flex xs:hidden">{chain.name}</div>
                           </button>
 
                           <button onClick={openAccountModal} type="button" className="bg-blue-500 px-4 py-2 rounded-md text-white">
-                            <div className="hidden sm:flex">{account.displayName}</div> (
+                            <div className="flex xs:hidden">{account.displayName}</div> (
                             {account.displayBalance
                               ? `${account.displayBalance}`
                               : ''})
