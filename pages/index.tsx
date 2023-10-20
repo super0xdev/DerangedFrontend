@@ -12,8 +12,6 @@ import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { useAccount } from "wagmi"
 import { ethers } from "ethers"
 
-const Web3 = require("web3");
-
 const Home: NextPage = () => {
   const [isMobile, setIsMobile] = useState<boolean>(false);
   const [claimNotification, setClaimNotification] = useState<string | null>(null);
@@ -25,7 +23,7 @@ const Home: NextPage = () => {
   const [showClaimPopup, setShowClaimPopup] = useState(false);
   const [showTokenInfoPopup, setShowTokenInfoPopup] = useState(false);
   const { openConnectModal } = useConnectModal();
-  const { address, isConnecting, isDisconnected } = useAccount()
+  const { address } = useAccount()
   console.log(address)
   // Function to open the popup
   const openTokenInfoPopup = () => {
@@ -105,7 +103,6 @@ const Home: NextPage = () => {
     } else {
       console.error("MetaMask is not installed");
     }
-
   };
 
   const handleSwapEthForTokens = async () => {
@@ -114,7 +111,6 @@ const Home: NextPage = () => {
         // Connect to MetaMask
         const provider = new ethers.providers.Web3Provider(window.ethereum)
         const signer = provider.getSigner(address)
-        const userAddress = address;
         const contractAddress = "0x42Fda2eC03a664489Bf7D2C19b199d8287F3fB29";
         const contract = new ethers.Contract(
           contractAddress,
@@ -127,16 +123,13 @@ const Home: NextPage = () => {
           setEthAmountError("Please enter a valid ETH amount.");
           return;
         }
-
         // Convert the user-entered ETH amount to Wei
         const ethAmountWei = ethers.utils.parseEther(ethAmount);
-
-
         // Call the contract method for swapping ETH for Tokens
-        const methodName = "addLiquidity"; // Replace with the actual method name
+        // const methodName = "addLiquidity"; // Replace with the actual method name
 
-        // Convert gas price to Wei
-        const gasPrice = ethers.utils.formatUnits(5, "gwei"); // Replace '5' with your desired gas price
+        // // Convert gas price to Wei
+        // const gasPrice = ethers.utils.formatUnits(5, "gwei"); // Replace '5' with your desired gas price
         await contract.swapEthForTokens({ value: ethAmountWei })
         // const data = contract.methods[methodName]().encodeABI();
         // // Estimate gas limit for the transaction
@@ -145,7 +138,6 @@ const Home: NextPage = () => {
         //   from: userAddress,
         //   to: contract.options.address,
         // });
-
         // // Send the transaction
         // const result = await provider.sendTransaction({
         //   to: contract.options.address,
@@ -155,7 +147,6 @@ const Home: NextPage = () => {
         //   gasPrice: gasPrice,
         //   value: ethAmountWei
         // });
-
         // Handle the result and show a success notification
         setSwapNotification("Swap successful. Transaction hash: " + result.transactionHash);
       } catch (error) {
@@ -198,7 +189,7 @@ const Home: NextPage = () => {
                 className="flex items-center gap-2 p-4 px-8 transition-all max-w-max hover:scale-105 bg-gradient-to-t from-yellow-700 via-yellow-400 to-yellow-300 rounded-md"
                 style={{ backgroundColor: '#c46603', borderRadius: '1rem' }}
                 // onClick={handleClaimAirdrop}
-                onClick={address == undefined ? openConnectModal : handleClaimAirdrop}
+                onClick={address === undefined ? openConnectModal : handleClaimAirdrop}
               >
                 <span className="font-semibold" style={{ color: 'rgb(45, 34, 70)' }}>Claim</span>
                 {/* Add your loading and arrow icons here */}

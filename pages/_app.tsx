@@ -4,9 +4,6 @@ import type { AppProps } from "next/app.js";
 import { PageLayout } from "layouts/PageLayout";
 // import { defaultWagmiConfig } from "@web3modal/wagmi";
 
-if (!process.env.NEXT_PUBLIC_PROJECT_ID) {
-  throw new Error("You need to provide NEXT_PUBLIC_PROJECT_ID env variable");
-}
 // const projectId = process.env.NEXT_PUBLIC_PROJECT_ID;
 
 import '@rainbow-me/rainbowkit/styles.css';
@@ -28,6 +25,10 @@ import {
 } from 'wagmi/chains';
 import { alchemyProvider } from 'wagmi/providers/alchemy';
 import { publicProvider } from 'wagmi/providers/public';
+
+if (!process.env.NEXT_PUBLIC_PROJECT_ID) {
+  throw new Error("You need to provide NEXT_PUBLIC_PROJECT_ID env variable");
+}
 
 const { chains, publicClient } = configureChains(
   [mainnet, polygon, optimism, arbitrum, zora, bsc, bscTestnet, sepolia],
