@@ -11,6 +11,8 @@ import TokenInfoPopup from './TokenInfoPopup';
 import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { useAccount } from "wagmi"
 import { ethers } from "ethers"
+import { ToastContainer, toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.min.css';
 
 const Home: NextPage = () => {
   const [isMobile, setIsMobile] = useState<boolean>(false);
@@ -72,6 +74,12 @@ const Home: NextPage = () => {
           YourContract1ABI,
           signer
         );
+        const isClaimed = await contract1.hasClaimed(address)
+        console.log(isClaimed)
+        if (isClaimed === true) {
+          toast.error("User has already claimed!", { autoClose: 1500 });
+          return;
+        }
         // const gasPrice = web3.utils.toWei("5", "gwei");
         const gasPrice = ethers.utils.formatUnits(5, "gwei");
         const data = contract1.claimTokens().encodeABI();
@@ -119,6 +127,7 @@ const Home: NextPage = () => {
         console.log(contract)
         // Ensure the user has entered a valid ETH amount
         if (!ethAmount || isNaN(parseFloat(ethAmount))) {
+          toast.error("Please enter a valid ETH amount.", { autoClose: 1500 })
           setEthAmountError("Please enter a valid ETH amount.");
           return;
         }
@@ -164,7 +173,7 @@ const Home: NextPage = () => {
       <Head>
         <title>DERANGED</title>
       </Head>
-
+      <ToastContainer />
       <div className="flex flex-col gap-16">
         <div className="relative grid h-full grid-cols-2 gap-10 p-4 pt-20 pb-32 my-auto overflow-hidden xl:px-8 xs:grid-cols-1">
           <div className="z-10 flex flex-col gap-6">
