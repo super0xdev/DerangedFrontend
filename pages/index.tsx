@@ -9,24 +9,25 @@ import Image from "next/image";
 import CountdownTimer from '../components/Countdown/CountdownTimer';
 import TokenInfoPopup from './TokenInfoPopup';
 import { useConnectModal } from "@rainbow-me/rainbowkit";
-import { useAccount } from "wagmi"
+import { useAccount, useContractRead, useContractWrite, useWalletClient } from "wagmi"
 import { ethers } from "ethers"
 import { ToastContainer, toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.min.css';
 
 const Home: NextPage = () => {
   const [isMobile, setIsMobile] = useState<boolean>(false);
-  const [claimNotification, setClaimNotification] = useState<string | null>(null);
-  const [swapNotification, setSwapNotification] = useState<string | null>(null);
+  // const [claimNotification, setClaimNotification] = useState<string | null>(null);
+  // const [swapNotification, setSwapNotification] = useState<string | null>(null);
   const [ethAmount, setEthAmount] = useState<string>("");
   const [ethAmountError, setEthAmountError] = useState<string | null>(null);
-  const errorNotificationClass = 'error-notification';
-  const successNotificationClass = 'success-notification';
+  // const errorNotificationClass = 'error-notification';
+  // const successNotificationClass = 'success-notification';
   const [showClaimPopup, setShowClaimPopup] = useState(false);
   const [showTokenInfoPopup, setShowTokenInfoPopup] = useState(false);
   const { openConnectModal } = useConnectModal();
+  const { data: signer } = useWalletClient()
   const { address } = useAccount()
-  console.log(address)
+
   // Function to open the popup
   const openTokenInfoPopup = () => {
     setShowTokenInfoPopup(true);
@@ -37,9 +38,9 @@ const Home: NextPage = () => {
     setShowTokenInfoPopup(false);
   };
 
-  const showClaimSuccessPopup = () => {
-    setShowClaimPopup(true);
-  };
+  // const showClaimSuccessPopup = () => {
+  //   setShowClaimPopup(true);
+  // };
 
   useEffect(() => {
     const checkIsMobile = () => {
@@ -59,113 +60,54 @@ const Home: NextPage = () => {
   const targetDate2 = '2023-10-24T16:00:00'; // Replace with your specific date and time
   const contractAddressfree = '0x03E071D664FA812094e15026668C73DDfbB8A99d'; // Replace with the actual contract address
 
+  const hasClaimed = useContractRead({
+    address: '0x03E071D664FA812094e15026668C73DDfbB8A99d',
+    abi: YourContract1ABI,
+    functionName: 'hasClaimed',
+    args: [address]
+  })
+
+  const { write } = useContractWrite({
+    address: '0x03E071D664FA812094e15026668C73DDfbB8A99d',
+    abi: YourContract1ABI,
+    functionName: 'claimTokens'
+  })
+
+  const { write: swapEthForTokens } = useContractWrite({
+    address: '0x42Fda2eC03a664489Bf7D2C19b199d8287F3fB29',
+    abi: YourContract2ABI,
+    functionName: 'swapEthForTokens'
+  })
+
   const handleClaimAirdrop = async () => {
-    if (typeof window.ethereum !== "undefined") {
-      try {
-        // const accounts = await window.ethereum.request({
-        //   method: "eth_requestAccounts"
-        // });
-        const provider = new ethers.providers.Web3Provider(window.ethereum)
-        const signer = provider.getSigner(address)
-        const userAddress = address;
-        const contractAddress = "0x03E071D664FA812094e15026668C73DDfbB8A99d";
-        const contract1 = new ethers.Contract(
-          contractAddress,
-          YourContract1ABI,
-          signer
-        );
-        const isClaimed = await contract1.hasClaimed(address)
-        console.log(isClaimed)
-        if (isClaimed === true) {
-          toast.error("User has already claimed!", { autoClose: 1500 });
-          return;
-        }
-        // const gasPrice = web3.utils.toWei("5", "gwei");
-        const gasPrice = ethers.utils.formatUnits(5, "gwei");
-        const data = contract1.claimTokens().encodeABI();
-        try {
-          // const gasLimit = await provider.estimateGas({
-          //   to: contract1.options.address,
-          //   data: data,
-          //   from: userAddress
-          // });
-
-          const result = await signer.sendTransaction({
-            to: contract1.options.address,
-            data: data,
-            from: userAddress,
-            gasPrice: gasPrice
-          });
-          setClaimNotification("Transaction successful. Transaction hash: " + result.hash);
-
-          // Show the claim success popup
-          showClaimSuccessPopup();
-        } catch (error) {
-          console.error("Error:", error);
-          setClaimNotification("Transaction failed. Error: " + (error as Error).message);
-        }
-      } catch (error) {
-        console.error("Error connecting to MetaMask:", error);
-      }
-    } else {
-      console.error("MetaMask is not installed");
+    if (!signer) return;
+    const isClaimed = hasClaimed.data;
+    console.log(isClaimed)
+    if (isClaimed === true) {
+      toast.error("User has already claimed!", { autoClose: 1500 });
+      return;
     }
+    write({
+      args: []
+    })
+    toast.success('Transaction succesfull')
   };
 
   const handleSwapEthForTokens = async () => {
-    if (typeof window.ethereum !== "undefined") {
-      try {
-        // Connect to MetaMask
-        const provider = new ethers.providers.Web3Provider(window.ethereum)
-        const signer = provider.getSigner(address)
-        const contractAddress = "0x42Fda2eC03a664489Bf7D2C19b199d8287F3fB29";
-        const contract = new ethers.Contract(
-          contractAddress,
-          YourContract2ABI,
-          signer
-        );
-        console.log(contract)
-        // Ensure the user has entered a valid ETH amount
-        if (!ethAmount || isNaN(parseFloat(ethAmount))) {
-          toast.error("Please enter a valid ETH amount.", { autoClose: 1500 })
-          setEthAmountError("Please enter a valid ETH amount.");
-          return;
-        }
-        // Convert the user-entered ETH amount to Wei
-        const ethAmountWei = ethers.utils.parseEther(ethAmount);
-        // Call the contract method for swapping ETH for Tokens
-        // const methodName = "addLiquidity"; // Replace with the actual method name
-
-        // // Convert gas price to Wei
-        // const gasPrice = ethers.utils.formatUnits(5, "gwei"); // Replace '5' with your desired gas price
-        const result = await contract.swapEthForTokens({ value: ethAmountWei })
-        // const data = contract.methods[methodName]().encodeABI();
-        // // Estimate gas limit for the transaction
-        // const gasLimit = await provider.estimateGas({
-        //   data: data,
-        //   from: userAddress,
-        //   to: contract.options.address,
-        // });
-        // // Send the transaction
-        // const result = await provider.sendTransaction({
-        //   to: contract.options.address,
-        //   data: data,
-        //   from: userAddress,
-        //   gas: gasLimit,
-        //   gasPrice: gasPrice,
-        //   value: ethAmountWei
-        // });
-        // Handle the result and show a success notification
-        setSwapNotification("Swap successful. Transaction hash: " + result.hash);
-      } catch (error) {
-        console.error("Error:", error);
-        // Use type assertion (casting) to treat `error` as an `Error` object
-        setSwapNotification("Swap failed. Error: " + (error as Error).message);
-      }
-    } else {
-      console.error("MetaMask is not installed");
-      // Show a message to install MetaMask
+    // Connect to MetaMask
+    if (!signer) return;
+    if (!ethAmount || isNaN(parseFloat(ethAmount))) {
+      toast.error("Please enter a valid ETH amount.", { autoClose: 1500 })
+      setEthAmountError("Please enter a valid ETH amount.");
+      return;
     }
+    const ethAmountWei = ethers.utils.parseEther(ethAmount);
+    const tx = swapEthForTokens({
+      args: [],
+      value: ethAmountWei.toBigInt()
+    })
+    console.log(tx)
+    toast.success("Swap successful.");
   };
 
   return (
@@ -217,11 +159,11 @@ const Home: NextPage = () => {
             <div className="flex flex-col gap-16">
 
               {/* ClaimTokens Notification */}
-              {claimNotification && (
+              {/* {claimNotification && (
                 <div className={claimNotification.includes('Transaction failed') ? errorNotificationClass : successNotificationClass}>
                   {claimNotification}
                 </div>
-              )}
+              )} */}
 
               {/* ... */}
             </div>
@@ -289,9 +231,9 @@ const Home: NextPage = () => {
             <div className="flex flex-col gap-16">
 
               {/* SwapEthForTokens Notification */}
-              {swapNotification && (
+              {/* {swapNotification && (
                 <div className="text-sm font-semibold text-green-800">{swapNotification}</div>
-              )}
+              )} */}
 
               {/* ... */}
             </div>
