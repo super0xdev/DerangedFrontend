@@ -70,13 +70,45 @@ const Home: NextPage = () => {
   const { write } = useContractWrite({
     address: '0x03E071D664FA812094e15026668C73DDfbB8A99d',
     abi: YourContract1ABI,
-    functionName: 'claimTokens'
+    functionName: 'claimTokens',
+    onError: async (data) => {
+      await new Promise(resolve => {
+        toast.error(`Transaction Failed. ${data}`, {
+          autoClose: 2000,
+          onClose: resolve
+        });
+      });
+    },
+    onSuccess: async (data) => {
+      await new Promise(resolve => {
+        toast.success(`Transaction Success. ${data}`, {
+          autoClose: 2000,
+          onClose: resolve
+        });
+      });
+    }
   })
 
   const { write: swapEthForTokens } = useContractWrite({
     address: '0x42Fda2eC03a664489Bf7D2C19b199d8287F3fB29',
     abi: YourContract2ABI,
-    functionName: 'swapEthForTokens'
+    functionName: 'swapEthForTokens',
+    onError: async (data) => {
+      await new Promise(resolve => {
+        toast.error(`Transaction Failed. ${data}`, {
+          autoClose: 2000,
+          onClose: resolve
+        });
+      });
+    },
+    onSuccess: async (data) => {
+      await new Promise(resolve => {
+        toast.success(`Transaction Success. ${data}`, {
+          autoClose: 2000,
+          onClose: resolve
+        });
+      });
+    }
   })
 
   const handleClaimAirdrop = async () => {
@@ -90,7 +122,6 @@ const Home: NextPage = () => {
     write({
       args: []
     })
-    toast.success('Transaction succesfull')
   };
 
   const handleSwapEthForTokens = async () => {
@@ -102,12 +133,10 @@ const Home: NextPage = () => {
       return;
     }
     const ethAmountWei = ethers.utils.parseEther(ethAmount);
-    const tx = swapEthForTokens({
+    swapEthForTokens({
       args: [],
       value: ethAmountWei.toBigInt()
     })
-    console.log(tx)
-    toast.success("Swap successful.");
   };
 
   return (
